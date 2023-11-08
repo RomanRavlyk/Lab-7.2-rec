@@ -1,0 +1,83 @@
+#include <iostream>
+#include <iomanip>
+#include <time.h>
+using namespace std;
+void CreateRow(int** a, const int rowNo, const int N, const int Low,
+	const int High, int colNo)
+{
+	a[rowNo][colNo] = Low + rand() % (High - Low + 1);
+	if (colNo < N - 1)
+		CreateRow(a, rowNo, N, Low, High, colNo + 1);
+}
+void CreateRows(int** a, const int N, const int Low, const int High, int rowNo)
+{
+	CreateRow(a, rowNo, N, Low, High, 0);
+	if (rowNo < N - 1)
+		CreateRows(a, N, Low, High, rowNo + 1);
+}
+void PrintRow(int** a, const int rowNo, const int N, int colNo)
+{
+	cout << setw(4) << a[rowNo][colNo];
+	if (colNo < N - 1)
+		PrintRow(a, rowNo, N, colNo + 1);
+	else
+		cout << endl;
+}
+void PrintRows(int** a, const int N, int rowNo)
+{
+	PrintRow(a, rowNo, N, 0);
+	if (rowNo < N - 1)
+		PrintRows(a, N, rowNo + 1);
+	else
+		cout << endl;
+}
+
+void FindMinMax(int** a, const int n, int i, int j, int& minAbove, int& maxBelow, int& sum) {
+	if (i < n) {
+		if (j < n) {
+			if (i + j < n - 1) { // Елементи над побічною діагоналлю
+				if (a[i][j] < minAbove) {
+					minAbove = a[i][j];
+				}
+			}
+			else if (i + j > n - 1) { // Елементи під побічною діагоналлю
+				if (a[i][j] > maxBelow) {
+					maxBelow = a[i][j];
+				}
+			}
+			FindMinMax(a, n, i, j + 1, minAbove, maxBelow, sum);
+		}
+		else {
+			FindMinMax(a, n, i + 1, 0, minAbove, maxBelow, sum);
+		}
+	}
+	else sum = minAbove + maxBelow;
+}
+
+
+int main()
+{
+	srand((unsigned)time(NULL));
+	int N;
+	cout << "N = "; cin >> N;
+	cout << endl;
+	int** a = new int* [N];
+	for (int i = 0; i < N; i++)
+		a[i] = new int[N];
+	int Low = -50, High = 50;
+	CreateRows(a, N, Low, High, 0);
+	PrintRows(a, N, 0);
+	int minAboveDiagonal = a[0][N - 1];
+	int maxBelowDiagonal = a[N - 1][0];
+	int sum = 0;
+	FindMinMax(a, N, 0, 0, minAboveDiagonal, maxBelowDiagonal, sum);
+	cout << "Minimal number: " << minAboveDiagonal << endl;
+	cout << "Maximal number: " << maxBelowDiagonal << endl;
+	cout << "Sum of numbers: " << sum;
+	for (int i = 0; i < N; i++)
+		delete[] a[i];
+	delete[] a;
+	return 0;
+}
+
+
